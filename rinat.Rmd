@@ -1,0 +1,134 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+In this workshop, we're going to use the "rinat" library (probably pronounced "R-iNat"). You can query data directly from iNaturalist with rinat, and then use R scripting to target data columns, run calculations, generate charts, etc.
+
+
+First let's load the rinat and tidyverse libraries:
+
+```{r}
+library(rinat)
+library(tidyverse)
+library(vegan)
+
+
+
+
+```
+
+
+The most useful function in rinat is get_inat_obs (more here: https://rdrr.io/cran/rinat/man/get_inat_obs.html). get_inat_obs returns a dataframe based upon the arguments you pass. Here is the list of possible arguments:
+
+query:	Query string for a general search.
+
+taxon_name: Filter by iNat taxon name. Note that this will also select observations of descendant taxa. Note that names are not unique, so if the name matches multiple taxa, no observations may be returned.
+
+taxon_id: Filter by iNat taxon ID. Note that this will also select observations of descendant taxa.
+
+place_id: Filter by iNat place ID.
+
+quality: The quality grade to be used. Must be either "casual" or "research". If left blank both will be returned.
+
+geo: Flag for returning only results that are georeferenced, TRUE will exclude non-georeferenced results, but they cannot be excluded.
+
+year: Return observations only in that year (can only be one year, not a range of years).
+
+month: Return observations only by month, must be numeric, 1...12
+
+day: Return observations only on a given day of the month, 1...31
+
+bounds: A bounding box of longitude (-180 to 180) and latitude (-90 to 90) to search within. It is a vector in the form of southern latitude, western longitude, northern latitude, and eastern longitude. Alternatively supply an sf or sp object from which the bounding box will be derived.
+
+maxresults: The maximum number of results to return. Should not be a number higher than 10000.
+
+meta: (logical) If TRUE, the output of this function is a list with metadata on the output and a data.frame of the data. If FALSE (default), just the data.frame.
+
+--
+
+In order to get the most precise data, it's probably a good idea to use some of the more specific arguments (e.g. taxon_name, taxon_id, place_id), rather than the more general argument "query". Of course, that's only useful if you know what taxon_id and place_id are. Fortunately, you can find them pretty easily by using their web interface for places:
+
+1) Visit https://www.inaturalist.org/places
+2) Perform a search for a place (this can be a city, state, county, country, point of interest, etc.).
+3) View the results, and click on the link for the place you want.
+4) The resulting URL should give you the place id. For example, for the state of Oregon, the URL is: https://www.inaturalist.org/places/oregon-us In this case, the place id is "oregon-us"
+
+From this website, you can also get the taxon_id. Let's say we're interested in all Arachnids. On the left side, if I click on Arachnids, I get this URL:
+
+https://www.inaturalist.org/places/oregon-us#taxon=47119
+
+...so my taxon_id is 47119.
+
+You can also get the taxon_id from the URL of a taxon page in iNaturalist. For example:
+
+https://www.inaturalist.org/taxa/67708-Argiope-trifasciata
+
+In the case above, the taxon_id is 67708.
+
+
+Let's say I want to get all the research grade results of Arachnids in Oregon for the year 2019. I can enter my arguments in get_inat_obs below (keep in mind, it may take several seconds to get the results):
+
+```{r}
+
+#make the query
+#the default maxresults is 100, so bumping it up to 10000 (the max) will give you a larger result set
+orArachnids2019<-get_inat_obs(place_id="oregon-us", taxon_id="47119", quality="research", year="2019", maxresults = 10000)
+
+#see the results
+orArachnids2019
+
+
+
+```
+
+
+Now lets say we want to calculate the Shannon index for species diversity. 
+
+
+
+
+
+
+
+```{r}
+
+
+monarchs <- get_inat_obs(taxon_id="47119", place_id="oregon-us", quality="research", maxresults = 9999, year=2020)
+unique(monarchs$scientific_name)
+
+monarchs
+
+help(rinat)
+
+```
+
+
+
+```{r}
+# calculate species richness:
+
+
+octOk <- get_inat_obs( place_id="12", quality="research", maxresults = 9999, year=2020, month=10)
+
+
+octOk
+
+
+
+
+
+```
+```{r}
+
+vals<-unique(octOk$scientific_name)
+
+length(vals)
+
+```
+
+
+
+
+
