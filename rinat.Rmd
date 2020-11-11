@@ -7,14 +7,17 @@ output: html_notebook
 In this workshop, we're going to use the "rinat" library (probably pronounced "R-iNat"). You can query data directly from iNaturalist with rinat, and then use R scripting to target data columns, run calculations, generate charts, etc.
 
 
-First let's load the rinat and tidyverse libraries:
+First let's load the rinat, tidyverse, and vegan libraries:
 
 ```{r}
+# for interacting with iNaturalist
 library(rinat)
+
+# working with data frames & charts
 library(tidyverse)
+
+# for calculating diversity indices
 library(vegan)
-
-
 
 
 ```
@@ -78,13 +81,45 @@ orArachnids2019<-get_inat_obs(place_id="oregon-us", taxon_id="47119", quality="r
 
 #see the results
 orArachnids2019
+```
+
+Now we want to take that dataset, and determine how many unique species are represented, and how many of each. To accomplish this, we're going to use the "pipe" operator: %>%. This sort of means "now pass this on to the next function.
 
 
 
+```{r}
+sum<-orArachnids2019 %>% group_by(scientific_name) %>% summarize(n=n())
+
+sum
 ```
 
 
 Now lets say we want to calculate the Shannon index for species diversity. 
+
+
+```{r}
+diversity(sum[-1], index="shannon")
+
+```
+
+
+
+
+
+```{r}
+
+transpose(sum)
+
+
+#taxons<-orArachnids2019$scientific_name
+
+#diversity(taxons, index="shannon")
+
+BCI
+
+
+
+```
 
 
 
@@ -120,6 +155,10 @@ octOk
 
 
 ```
+
+
+
+
 ```{r}
 
 vals<-unique(octOk$scientific_name)
