@@ -1,6 +1,10 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "iNaturalist data in R"
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document:
+    df_print: paged
 ---
 
 
@@ -23,7 +27,20 @@ library(vegan)
 ```
 
 
-The most useful function in rinat is get_inat_obs (more here: https://rdrr.io/cran/rinat/man/get_inat_obs.html). get_inat_obs returns a dataframe based upon the arguments you pass. Here is the list of possible arguments:
+The most useful function in rinat is get_inat_obs (more here: https://rdrr.io/cran/rinat/man/get_inat_obs.html). 
+
+Let's do a quick search:
+
+```{r}
+
+spiders<-get_inat_obs(query="Arachnids")
+
+spiders
+
+```
+
+This is great....we now have a data frame of 100 observations of Arachnids. However, the results are a little scattered geographically, and we only have 100, so may be of limited use. If we want to do some real analysis of data, we should ask a more targeted question using the available get_inat_obs arguments:
+
 
 query:	Query string for a general search.
 
@@ -76,50 +93,108 @@ Let's say I want to get all the research grade results of Arachnids in Oregon fo
 ```{r}
 
 #make the query
-#the default maxresults is 100, so bumping it up to 10000 (the max) will give you a larger result set
+#the default maxresults is 100, so bumping it up to 10000 (the max) should give you a larger result set
+
 orArachnids2019<-get_inat_obs(place_id="oregon-us", taxon_id="47119", quality="research", year="2019", maxresults = 10000)
 
 #see the results
 orArachnids2019
 ```
 
-Now we want to take that dataset, and determine how many unique species are represented, and how many of each. To accomplish this, we're going to use the "pipe" operator: %>%. This sort of means "now pass this on to the next function.
+This is a much more useful dataset. Below we'll use this to calculate diversity indices, and create some maps & charts.
 
-
-
-```{r}
-sum<-orArachnids2019 %>% group_by(scientific_name) %>% summarize(n=n())
-
-sum
-```
-
-
-Now lets say we want to calculate the Shannon index for species diversity. 
-
+But first...
+Can you get a data set from iNaturalist of all research level bird (Aves) observations in Oregon from June of 2018? (Hint: start at https://www.inaturalist.org/places to get the place_id and taxon_id)
 
 ```{r}
-diversity(sum[-1], index="shannon")
+
+birds<-get_inat_obs(place_id="oregon-us", taxon_id="3", quality="research", year="2018", month="6",maxresults = 10000)
+
+birds
 
 ```
 
 
 
+Now let's revisit the Arachnid dataset to determine the Shannon and Simpson diversity indices. First, we need to run some code to group our data by species, and determine the respective species counts.
+
+Now we want to take that dataset, and determine how many unique species are represented, and how many of each. To accomplish this, we're going to use the "pipe" operator: %>%. This sort of means "now pass this on to the next function. 
+
+"group_by" will group the data by unique values in the column I specify. Then once it's grouped, the "summarize" function lets me create columns based upon some criteria or calculation. In the example below, I'm grouping by 
+
 
 
 ```{r}
 
-transpose(sum)
+speciesCounts<-orArachnids2019 %>% group_by(scientific_name) %>% summarize(n=n())
+
+speciesCounts
+speciesCounts[-1]
+
+```
 
 
-#taxons<-orArachnids2019$scientific_name
 
-#diversity(taxons, index="shannon")
+Now lets say we want to calculate the Shannon index for species diversity. Fortunately, the "vegan" package has a function called "diversity" that will do this in a snap. We just specify the column of numeric data (n)
 
-BCI
+
+```{r}
+shannonIndexArachnids<-diversity(speciesCounts$n, index="shannon")
+
+shannonIndexArachnids
+
+```
+
+Similarly, we can calculate the Simpson index:
+
+```{r}
+
+simpsonIndexArachnids<-diversity(speciesCounts$n, index="simpson")
+
+simpsonIndexArachnids
+
+
+```
+
+Now, calculate Simpson and Shannon indicies for the birds dataset:
+
+
+```{r}
+
+# first create a dataset of species & their counts, using group_by & summarize:
+
+
+# now use the diversity function to generate and print the indices:
 
 
 
 ```
+
+
+
+
+
+Flush out map stuff below.
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+inat_map(orArachnids2019, map = "county", subregion = "oregon", plot = TRUE)
+
+
+```
+
+
+
+
 
 
 
