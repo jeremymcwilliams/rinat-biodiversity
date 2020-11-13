@@ -30,7 +30,6 @@ library(tidyverse)
 # for calculating diversity indices
 library(vegan)
 
-
 ```
 
 
@@ -94,7 +93,6 @@ https://www.inaturalist.org/taxa/67708-Argiope-trifasciata
 
 In the case above, the taxon_id is 67708.
 
-
 Let's say I want to get all the research grade results of Arachnids in Oregon for the year 2019. I can enter my arguments in get_inat_obs below (keep in mind, it may take several seconds to get the results):
 
 ```{r}
@@ -111,7 +109,7 @@ orArachnids2019
 This is a much more useful dataset. Below we'll use this to calculate diversity indices, and create some maps & charts.
 
 But first...
-Can you get a data set from iNaturalist of all research level bird (Aves) observations in Oregon from June of 2018? (Hint: start at https://www.inaturalist.org/places to get the place_id and taxon_id)
+Can you get a data set from iNaturalist of all research level Arachnids observations in the Portland-Vancouver metro region from 2019? (Hint: start at https://www.inaturalist.org/places to get the place_id and taxon_id)
 
 ```{r}
 
@@ -124,7 +122,7 @@ Uploading data
 Despite the awesomeness of rinat, you might choose to download your data directly from iNaturalist. Doing this extends your dataset beyond 10,000, and you can also get additional columns that could be useul to your project ("taxon extras", like "taxon_kingdom_name", etc.). You can still use this data in RStudio, by doing the following:
 
 * Download and unzip your dataset from iNaturalist. This should give you a .csv file.
-* In RStudio, click 'Upload" in the Files area (lower right-hand corner). Select your file, and click Ok.
+* In RStudio, click "Upload" in the Files area (lower right-hand corner). Select your file, and click Ok.
 * Once your file has been uploaded, use the read_csv function to create a data frame variable:
 
 myData<-read_csv("filename.csv")
@@ -199,11 +197,16 @@ simpsonIndexArachnids
 
 ```
 
-Now, calculate Simpson and Shannon indicies for the birds dataset:
+Now, calculate Simpson and Shannon indicies for the Portland-Vancouver Metro Region Arachnids dataset:
 
 
 ```{r}
 
+# Species Richness:
+# use "unique" and "length"
+
+
+# Shannon & Simpson:
 # first create a dataset of species & their counts, using group_by & summarize:
 
 
