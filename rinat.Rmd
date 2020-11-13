@@ -24,6 +24,8 @@ library(tidyverse)
 library(vegan)
 
 
+
+
 ```
 
 
@@ -108,9 +110,7 @@ Can you get a data set from iNaturalist of all research level bird (Aves) observ
 
 ```{r}
 
-birds<-get_inat_obs(place_id="oregon-us", taxon_id="3", quality="research", year="2018", month="6",maxresults = 10000)
 
-birds
 
 ```
 
@@ -120,7 +120,7 @@ Now let's revisit the Arachnid dataset to determine the Shannon and Simpson dive
 
 Now we want to take that dataset, and determine how many unique species are represented, and how many of each. To accomplish this, we're going to use the "pipe" operator: %>%. This sort of means "now pass this on to the next function. 
 
-"group_by" will group the data by unique values in the column I specify. Then once it's grouped, the "summarize" function lets me create columns based upon some criteria or calculation. In the example below, I'm grouping by 
+"group_by" will group the data by unique values in the column I specify. Then once it's grouped, the "summarize" function lets me create columns based upon some criteria or calculation. In the example below, I'm grouping by scientific_name first, and then using summarize to create a column "n", equal to the count ("n()") of each group.
 
 
 
@@ -129,7 +129,7 @@ Now we want to take that dataset, and determine how many unique species are repr
 speciesCounts<-orArachnids2019 %>% group_by(scientific_name) %>% summarize(n=n())
 
 speciesCounts
-speciesCounts[-1]
+
 
 ```
 
@@ -172,61 +172,91 @@ Now, calculate Simpson and Shannon indicies for the birds dataset:
 
 
 
-
-
-Flush out map stuff below.
-
-
-
-
-
-
-
-
-
-
-```{r}
-
-inat_map(orArachnids2019, map = "county", subregion = "oregon", plot = TRUE)
-
-
-```
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-
-
-monarchs <- get_inat_obs(taxon_id="47119", place_id="oregon-us", quality="research", maxresults = 9999, year=2020)
-unique(monarchs$scientific_name)
-
-monarchs
-
-help(rinat)
-
-```
-
-
+Species Richness example:
 
 ```{r}
 # calculate species richness:
 
+# Get research quality arachnids from Oklahoma for October, 2020:
 
-octOk <- get_inat_obs( place_id="12", quality="research", maxresults = 9999, year=2020, month=10)
+octOk <- get_inat_obs( place_id="12", quality="research", taxon_id="47119", maxresults = 9999, year=2020, month=10)
 
-
+#Print it
 octOk
 
+# Find unique values in the scientific_name column
+vals<-unique(octOk$scientific_name)
+
+vals
+
+# length gives to total number (Species Richness)
+length(vals)
+
+```
 
 
+
+## Visualizations:
+
+
+### Bar charts
+
+Let's say you want to show a bar chart comparing a Shannon indices from 2017-2020. You may have to first calculate values as described above, and then create a data frame from those values. Once that's in place, you can then plot your data. Here's an example using some completely arbitrary values:
+
+```{r}
+
+# Here are some pretend Shannon index values...normally you would calculate them as described above
+sh2017<-4.1
+sh2018<-3.8
+sh2019<-6.4
+sh2020<-3.3
+
+# Create two vectors, with corresponding values in order
+years <- c('2017', '2018','2019','2020')
+shannonVals <- c(sh2017, sh2018, sh2019, sh2020)
+
+# Use the data.frame function to combine the vectors
+myData <- data.frame(years, shannonVals)
+
+# Printe the the new data frame
+myData
+
+
+# Generate the barlot (https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/barplot)
+
+barplot(myData$shannonVals, names.arg=myData$years, xlab="Year",ylab="Shannon Diversity Index",col="blue",
+main="Shannon Indices of Arachnids in Oregon")
+```
+
+
+
+### Mapping Data
+
+The rinat package has a function for taking datasets from iNaturalist and plotting them on a map (inat_map).
+
+Using the Arachnids data set, let's look at its arguments:
+
+data: a dataframe of iNaturalist results
+
+map: Mainly indicates the political borders to display. Options are "usa", "county", "state".
+
+subregion: Usually a state name, or "." (for "everything"), and works with the "map" value. 
+
+
+
+```{r}
+
+# shows all states, regardless of where data is
+usaMap<-inat_map(data=orArachnids2019, map = "state", subregion = ".", plot = TRUE)
+
+# with map set to "county", and subregrion set to "Oregon", shows just Oregon with county borders displayed
+oregon<-inat_map(data=orArachnids2019, map = "county", subregion = "Oregon", plot = TRUE)
+#x+labs(title="My Title")
+
+# set plot to "false"...doesn't print, but I can add stuff to it later
+
+oregon2<-inat_map(data=orArachnids2019, map = "county", subregion = "Oregon", plot = FALSE)
+oregon2+labs(title="Arachnids in Oregon, 2019")
 
 
 ```
@@ -234,11 +264,19 @@ octOk
 
 
 
+
+
+
+
+
+
+
+
+
+
 ```{r}
 
-vals<-unique(octOk$scientific_name)
 
-length(vals)
 
 ```
 
