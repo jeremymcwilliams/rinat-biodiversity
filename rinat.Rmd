@@ -8,6 +8,13 @@ output:
 ---
 
 
+Goals:
+
+* Query iNaturalist data directly from RStudio, using different parameters
+* Calculate Diversity indices (Shannon, Simpson, Species Richness) from iNaturalist data
+* Show a couple data visualizations (barplot & map)
+
+
 In this workshop, we're going to use the "rinat" library (probably pronounced "R-iNat"). You can query data directly from iNaturalist with rinat, and then use R scripting to target data columns, run calculations, generate charts, etc.
 
 
@@ -22,8 +29,6 @@ library(tidyverse)
 
 # for calculating diversity indices
 library(vegan)
-
-
 
 
 ```
@@ -115,10 +120,48 @@ Can you get a data set from iNaturalist of all research level bird (Aves) observ
 ```
 
 
+Uploading data
+Despite the awesomeness of rinat, you might choose to download your data directly from iNaturalist. Doing this extends your dataset beyond 10,000, and you can also get additional columns that could be useul to your project ("taxon extras", like "taxon_kingdom_name", etc.). You can still use this data in RStudio, by doing the following:
 
-Now let's revisit the Arachnid dataset to determine the Shannon and Simpson diversity indices. First, we need to run some code to group our data by species, and determine the respective species counts.
+* Download and unzip your dataset from iNaturalist. This should give you a .csv file.
+* In RStudio, click 'Upload" in the Files area (lower right-hand corner). Select your file, and click Ok.
+* Once your file has been uploaded, use the read_csv function to create a data frame variable:
 
-Now we want to take that dataset, and determine how many unique species are represented, and how many of each. To accomplish this, we're going to use the "pipe" operator: %>%. This sort of means "now pass this on to the next function. 
+myData<-read_csv("filename.csv")
+myData
+
+If you have a dataset, try this below:
+
+```{r}
+
+
+
+```
+
+
+### Diversity Indices
+
+
+Now let's revisit the Arachnid dataset to determine the Shannon, Simpson, and Species Richness diversity indices. 
+
+
+First let's calculate Species Richness (count of all species). For this, we can use the "unique" function, which looks for all unique values in a data frame column. Then we use the "length" function to count how many values were calculated by "unique". This will give us the Species Richness:
+
+```{r}
+# calculate species richness:
+# Find unique values in the scientific_name column
+vals<-unique(orArachnids2019$scientific_name)
+#print it
+vals
+
+# length gives to total number (Species Richness)
+length(vals)
+
+```
+
+
+
+For the Shannon and Simpson indices, we need to run some code to group our data by species, and determine the respective species counts (how many unique species are represented, and how many of each).  To accomplish this, we're going to use the "pipe" operator: %>%. This sort of means "now pass this on to the next function. 
 
 "group_by" will group the data by unique values in the column I specify. Then once it's grouped, the "summarize" function lets me create columns based upon some criteria or calculation. In the example below, I'm grouping by scientific_name first, and then using summarize to create a column "n", equal to the count ("n()") of each group.
 
@@ -172,31 +215,13 @@ Now, calculate Simpson and Shannon indicies for the birds dataset:
 
 
 
-Species Richness example:
 
-```{r}
-# calculate species richness:
-
-# Get research quality arachnids from Oklahoma for October, 2020:
-
-octOk <- get_inat_obs( place_id="12", quality="research", taxon_id="47119", maxresults = 9999, year=2020, month=10)
-
-#Print it
-octOk
-
-# Find unique values in the scientific_name column
-vals<-unique(octOk$scientific_name)
-
-vals
-
-# length gives to total number (Species Richness)
-length(vals)
-
-```
 
 
 
 ## Visualizations:
+
+We're just going to scratch the surface with what kinds of visualizations are possible. As your group is deciding what kind of visualization(s) to create, do some googling, and reach out to Jeremy if you need some guidance (jeremym@lclark.edu).
 
 
 ### Bar charts
@@ -269,16 +294,6 @@ oregon2+labs(title="Arachnids in Oregon, 2019")
 
 
 
-
-
-
-
-
-```{r}
-
-
-
-```
 
 
 
